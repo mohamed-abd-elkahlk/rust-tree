@@ -1,21 +1,33 @@
-use std::{env, fs, path::PathBuf};
+use clap::Parser;
+use colored::*;
+use rust_tree::print_tree;
+use std::io;
+use std::path::Path;
 
-use anyhow::Result;
-
-fn view_content(path: &PathBuf) -> Result<()> {
-    for entry in fs::read_dir(path)? {
-        let entry = entry?;
-        let path = entry.path();
-        if let Some(file_name) = path.file_name() {
-            if let Some(file_name_str) = file_name.to_str() {
-                println!("{}", file_name_str);
-            }
-        }
-    }
-    Ok(())
+/// Simple program to greet a person
+#[derive(Parser)]
+struct Cli {
+    /// The pattern to look for
+    pattern: String,
+    /// The path to the file to read
+    path: std::path::PathBuf,
 }
 
-fn main() -> Result<()> {
-    let currun_dir = env::current_dir()?;
-    view_content(&currun_dir)
+fn main() -> io::Result<()> {
+    // let args = Cli::parse();
+    let start_path = Path::new("./");
+
+    println!("{}", ".".blue().bold());
+
+    // Print the tree structure
+    let (dir_count, file_count, total_size) = print_tree(start_path, "")?;
+
+    // Print the summary
+    println!(
+        "\n{} directories, {} files, {:.2} MB total size",
+        dir_count.to_string().yellow(),
+        file_count.to_string().yellow(),
+        total_size as f64 / (1024.0 * 1024.0)
+    );
+    Ok(())
 }
