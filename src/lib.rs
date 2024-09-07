@@ -28,6 +28,11 @@ pub fn print_tree(dir: &Path, prefix: &str) -> io::Result<(usize, usize, u64)> {
         let mut directories = vec![];
 
         for path in entries {
+            if let Some(name) = path.file_name() {
+                if name.to_string_lossy().starts_with('.') {
+                    continue;
+                }
+            }
             if path.is_dir() {
                 directories.push(path);
             } else if path.is_file() {
