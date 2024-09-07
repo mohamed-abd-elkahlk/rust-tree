@@ -14,7 +14,7 @@ fn format_size(size: u64) -> String {
     }
 }
 
-pub fn print_tree(dir: &Path, prefix: &str) -> io::Result<(usize, usize, u64)> {
+pub fn print_tree(dir: &Path, prefix: &str, all: bool) -> io::Result<(usize, usize, u64)> {
     let mut file_count = 0;
     let mut dir_count = 0;
     let mut total_size = 0;
@@ -28,11 +28,14 @@ pub fn print_tree(dir: &Path, prefix: &str) -> io::Result<(usize, usize, u64)> {
         let mut directories = vec![];
 
         for path in entries {
-            if let Some(name) = path.file_name() {
-                if name.to_string_lossy().starts_with('.') {
-                    continue;
+            if !all {
+                if let Some(name) = path.file_name() {
+                    if name.to_string_lossy().starts_with('.') {
+                        continue;
+                    }
                 }
             }
+
             if path.is_dir() {
                 directories.push(path);
             } else if path.is_file() {
@@ -65,6 +68,7 @@ pub fn print_tree(dir: &Path, prefix: &str) -> io::Result<(usize, usize, u64)> {
             let (d_count, f_count, dir_size) = print_tree(
                 directory,
                 &format!("{}{}", prefix, if is_last_entry { "    " } else { "│   " }),
+                all,
             )?;
             total_size += dir_size;
             dir_count += d_count + 1;
